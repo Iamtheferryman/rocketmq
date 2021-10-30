@@ -16,10 +16,6 @@
  */
 package org.apache.rocketmq.client;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageQueue;
@@ -29,33 +25,70 @@ import org.apache.rocketmq.remoting.common.RemotingUtil;
 import org.apache.rocketmq.remoting.netty.TlsSystemConfig;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 /**
  * Client Common configuration
  */
 public class ClientConfig {
+
     public static final String SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY = "com.rocketmq.sendMessageWithVIPChannel";
+
+    /**
+     * 注册中心地址，如果是分号则用分号分开
+     */
     private String namesrvAddr = NameServerAddressUtils.getNameServerAddresses();
+
+    /**
+     * 客户端程序所在机器的ip地址
+     */
     private String clientIP = RemotingUtil.getLocalAddress();
+
+    /**
+     * 客户端实例名
+     */
     private String instanceName = System.getProperty("rocketmq.client.name", "DEFAULT");
+
+    /**
+     * 本机可用线程数
+     * 客户端回调线程数，该参数表示netty通信层回调线程的个数，默认值表示当前CPU的有效个数
+     */
     private int clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
+
     protected String namespace;
+
     protected AccessChannel accessChannel = AccessChannel.LOCAL;
 
     /**
      * Pulling topic information interval from the named server
      */
+    // 每隔30s从nameserver拉取topic信息
     private int pollNameServerInterval = 1000 * 30;
+
     /**
      * Heartbeat interval in microseconds with message broker
      */
+    // 与broker之间的心跳间隔
     private int heartbeatBrokerInterval = 1000 * 30;
+
     /**
      * Offset persistent interval for consumer
      */
     private int persistConsumerOffsetInterval = 1000 * 5;
+
     private long pullTimeDelayMillsWhenException = 1000;
+
     private boolean unitMode = false;
+
     private String unitName;
+
+    /**
+     * 表示是否开启VIP通道
+     * VIP通道和非VIP通道的区别是：在通信的过程中使用的端口号不同
+     */
     private boolean vipChannelEnabled = Boolean.parseBoolean(System.getProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, "false"));
 
     private boolean useTLS = TlsSystemConfig.tlsEnable;
@@ -92,6 +125,9 @@ public class ClientConfig {
         this.instanceName = instanceName;
     }
 
+    /**
+     * 修改实例名为进程id
+     */
     public void changeInstanceNameToPID() {
         if (this.instanceName.equals("DEFAULT")) {
             this.instanceName = String.valueOf(UtilAll.getPid());
@@ -302,9 +338,9 @@ public class ClientConfig {
     @Override
     public String toString() {
         return "ClientConfig [namesrvAddr=" + namesrvAddr + ", clientIP=" + clientIP + ", instanceName=" + instanceName
-            + ", clientCallbackExecutorThreads=" + clientCallbackExecutorThreads + ", pollNameServerInterval=" + pollNameServerInterval
-            + ", heartbeatBrokerInterval=" + heartbeatBrokerInterval + ", persistConsumerOffsetInterval=" + persistConsumerOffsetInterval
-            + ", pullTimeDelayMillsWhenException=" + pullTimeDelayMillsWhenException + ", unitMode=" + unitMode + ", unitName=" + unitName + ", vipChannelEnabled="
-            + vipChannelEnabled + ", useTLS=" + useTLS + ", language=" + language.name() + ", namespace=" + namespace + "]";
+                + ", clientCallbackExecutorThreads=" + clientCallbackExecutorThreads + ", pollNameServerInterval=" + pollNameServerInterval
+                + ", heartbeatBrokerInterval=" + heartbeatBrokerInterval + ", persistConsumerOffsetInterval=" + persistConsumerOffsetInterval
+                + ", pullTimeDelayMillsWhenException=" + pullTimeDelayMillsWhenException + ", unitMode=" + unitMode + ", unitName=" + unitName + ", vipChannelEnabled="
+                + vipChannelEnabled + ", useTLS=" + useTLS + ", language=" + language.name() + ", namespace=" + namespace + "]";
     }
 }

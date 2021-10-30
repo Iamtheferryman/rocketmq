@@ -22,13 +22,44 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * RocketMQ消息类
+ */
 public class Message implements Serializable {
+
+    /**
+     * 序列化id
+     */
     private static final long serialVersionUID = 8445773977080406428L;
 
+    /**
+     * 消息所属主题topic
+     */
     private String topic;
+
+    /**
+     * 消息Flag（RocketMQ不做处理）
+     * 选填，消息的标记，完全由应用设置，RocketMQ不做任何处理，类似于memcached中flag的作用
+     */
     private int flag;
+
+    /**
+     * 扩展属性
+     * tag：消息TAG，用于消息过滤
+     * keys：Message索引建，多个用空格隔开，RocketMQ可以根据这些key快速检索到消息
+     * waitStoreMsgOK：消息发送时，是否等待消息存储完成后再返回
+     * delayTimeLevel：消息延迟级别，用于定时消息或消息重试
+     */
     private Map<String, String> properties;
+
+    /**
+     * 消息体
+     */
     private byte[] body;
+
+    /**
+     * 事务id，仅在事务消息中会存在
+     */
     private String transactionId;
 
     public Message() {
@@ -81,13 +112,13 @@ public class Message implements Serializable {
     public void putUserProperty(final String name, final String value) {
         if (MessageConst.STRING_HASH_SET.contains(name)) {
             throw new RuntimeException(String.format(
-                "The Property<%s> is used by system, input another please", name));
+                    "The Property<%s> is used by system, input another please", name));
         }
 
         if (value == null || value.trim().isEmpty()
-            || name == null || name.trim().isEmpty()) {
+                || name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                "The name or value of property can not be null or blank string!"
+                    "The name or value of property can not be null or blank string!"
             );
         }
 
@@ -208,11 +239,12 @@ public class Message implements Serializable {
     @Override
     public String toString() {
         return "Message{" +
-            "topic='" + topic + '\'' +
-            ", flag=" + flag +
-            ", properties=" + properties +
-            ", body=" + Arrays.toString(body) +
-            ", transactionId='" + transactionId + '\'' +
-            '}';
+                "topic='" + topic + '\'' +
+                ", flag=" + flag +
+                ", properties=" + properties +
+                ", body=" + Arrays.toString(body) +
+                ", transactionId='" + transactionId + '\'' +
+                '}';
     }
+
 }

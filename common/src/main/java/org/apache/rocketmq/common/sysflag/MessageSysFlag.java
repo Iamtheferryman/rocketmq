@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.sysflag;
 
+/**
+ * 消息系统标识
+ */
 public class MessageSysFlag {
     public final static int COMPRESSED_FLAG = 0x1;
     public final static int MULTI_TAGS_FLAG = 0x1 << 1;
@@ -36,6 +39,10 @@ public class MessageSysFlag {
 
     public static int clearCompressedFlag(final int flag) {
         return flag & (~COMPRESSED_FLAG);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(COMPRESSED_FLAG);
     }
 
 }

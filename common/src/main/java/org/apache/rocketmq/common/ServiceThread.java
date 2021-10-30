@@ -16,30 +16,44 @@
  */
 package org.apache.rocketmq.common;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class ServiceThread implements Runnable {
+
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
     private static final long JOIN_TIME = 90 * 1000;
 
     private Thread thread;
+
     protected final CountDownLatch2 waitPoint = new CountDownLatch2(1);
+
     protected volatile AtomicBoolean hasNotified = new AtomicBoolean(false);
+
     protected volatile boolean stopped = false;
+
+    /**
+     * 是否为守护线程
+     */
     protected boolean isDaemon = false;
 
-    //Make it able to restart the thread
+    // Make it able to restart the thread
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     public ServiceThread() {
 
     }
 
+    /**
+     * 获取服务名
+     *
+     * @return
+     */
     public abstract String getServiceName();
 
     public void start() {
@@ -80,7 +94,7 @@ public abstract class ServiceThread implements Runnable {
             }
             long elapsedTime = System.currentTimeMillis() - beginTime;
             log.info("join thread " + this.getServiceName() + " elapsed time(ms) " + elapsedTime + " "
-                + this.getJointime());
+                    + this.getJointime());
         } catch (InterruptedException e) {
             log.error("Interrupted", e);
         }
@@ -126,6 +140,11 @@ public abstract class ServiceThread implements Runnable {
         }
     }
 
+    /**
+     * 等待多长时间后开始执行
+     *
+     * @param interval
+     */
     protected void waitForRunning(long interval) {
         if (hasNotified.compareAndSet(true, false)) {
             this.onWaitEnd();
@@ -152,6 +171,11 @@ public abstract class ServiceThread implements Runnable {
         return stopped;
     }
 
+    /**
+     * 是否是守护线程
+     *
+     * @return
+     */
     public boolean isDaemon() {
         return isDaemon;
     }

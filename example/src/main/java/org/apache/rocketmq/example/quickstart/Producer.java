@@ -45,20 +45,26 @@ public class Producer {
          * </pre>
          */
 
+        producer.setNamesrvAddr("rocketmq.sim.huohua.cn:9876");
+
         /*
          * Launch the instance.
          */
         producer.start();
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1; i++) {
             try {
 
                 /*
                  * Create a message instance, specifying topic, tag and message body.
                  */
-                Message msg = new Message("TopicTest" /* Topic */,
-                    "TagA" /* Tag */,
-                    ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
+                // BDP_FINA_CLASSHOUR_TRANS 课时
+                // BDP_FINA_PAY_ORDER 收款订单
+                // BDP_FINA_REFUND_ORDER 退款订单
+                // BDP_FINA_HHCOIN_TRANS 火花币
+                Message msg = new Message("BDP_FINA_CLASSHOUR_TRANS" /* Topic */,
+                        "" /* Tag */,
+                        ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
                 );
 
                 /*

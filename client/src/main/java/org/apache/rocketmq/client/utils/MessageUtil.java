@@ -25,6 +25,15 @@ import org.apache.rocketmq.common.message.MessageAccessor;
 import org.apache.rocketmq.common.message.MessageConst;
 
 public class MessageUtil {
+
+    /**
+     * 创建回复消息
+     *
+     * @param requestMessage
+     * @param body
+     * @return
+     * @throws MQClientException
+     */
     public static Message createReplyMessage(final Message requestMessage, final byte[] body) throws MQClientException {
         if (requestMessage != null) {
             Message replyMessage = new Message();
@@ -52,4 +61,5 @@ public class MessageUtil {
     public static String getReplyToClient(final Message msg) {
         return msg.getProperty(MessageConst.PROPERTY_MESSAGE_REPLY_TO_CLIENT);
     }
+
 }

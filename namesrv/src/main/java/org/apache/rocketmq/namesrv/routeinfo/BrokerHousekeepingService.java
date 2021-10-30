@@ -23,30 +23,60 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.namesrv.NamesrvController;
 import org.apache.rocketmq.remoting.ChannelEventListener;
 
+/**
+ * broker连接事件处理服务
+ */
 public class BrokerHousekeepingService implements ChannelEventListener {
+
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
+
     private final NamesrvController namesrvController;
 
     public BrokerHousekeepingService(NamesrvController namesrvController) {
         this.namesrvController = namesrvController;
     }
 
+    /**
+     * 通道连接
+     *
+     * @param remoteAddr
+     * @param channel
+     */
     @Override
     public void onChannelConnect(String remoteAddr, Channel channel) {
     }
 
+    /**
+     * 通道关闭
+     *
+     * @param remoteAddr
+     * @param channel
+     */
     @Override
     public void onChannelClose(String remoteAddr, Channel channel) {
         this.namesrvController.getRouteInfoManager().onChannelDestroy(remoteAddr, channel);
     }
 
+    /**
+     * 通道异常
+     *
+     * @param remoteAddr
+     * @param channel
+     */
     @Override
     public void onChannelException(String remoteAddr, Channel channel) {
         this.namesrvController.getRouteInfoManager().onChannelDestroy(remoteAddr, channel);
     }
 
+    /**
+     * idle 闲置
+     *
+     * @param remoteAddr
+     * @param channel
+     */
     @Override
     public void onChannelIdle(String remoteAddr, Channel channel) {
         this.namesrvController.getRouteInfoManager().onChannelDestroy(remoteAddr, channel);
     }
+
 }

@@ -16,9 +16,26 @@
  */
 package org.apache.rocketmq.client.producer;
 
+
 public enum SendStatus {
+
+    /**
+     * 发送成功
+     */
     SEND_OK,
+
+    /**
+     * 刷盘超时
+     */
     FLUSH_DISK_TIMEOUT,
+
+    /**
+     * 刷从超时
+     */
     FLUSH_SLAVE_TIMEOUT,
+
+    /**
+     * 从不可用
+     */
     SLAVE_NOT_AVAILABLE,
 }

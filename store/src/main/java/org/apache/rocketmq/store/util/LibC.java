@@ -23,13 +23,16 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
 public interface LibC extends Library {
+
     LibC INSTANCE = (LibC) Native.loadLibrary(Platform.isWindows() ? "msvcrt" : "c", LibC.class);
 
     int MADV_WILLNEED = 3;
     int MADV_DONTNEED = 4;
 
     int MCL_CURRENT = 1;
+
     int MCL_FUTURE = 2;
+
     int MCL_ONFAULT = 4;
 
     /* sync memory asynchronously */

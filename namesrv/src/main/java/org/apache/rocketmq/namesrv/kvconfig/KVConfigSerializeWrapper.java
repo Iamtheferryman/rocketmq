@@ -16,10 +16,15 @@
  */
 package org.apache.rocketmq.namesrv.kvconfig;
 
-import java.util.HashMap;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+import java.util.HashMap;
+
+/**
+ * 是为了方便序列化、反序列化的包装类。它和文件中的json格式数据对应。json字符串和对象间的转化使用了fastjson
+ */
 public class KVConfigSerializeWrapper extends RemotingSerializable {
+
     private HashMap<String/* Namespace */, HashMap<String/* Key */, String/* Value */>> configTable;
 
     public HashMap<String, HashMap<String, String>> getConfigTable() {
@@ -29,4 +34,5 @@ public class KVConfigSerializeWrapper extends RemotingSerializable {
     public void setConfigTable(HashMap<String, HashMap<String, String>> configTable) {
         this.configTable = configTable;
     }
+
 }

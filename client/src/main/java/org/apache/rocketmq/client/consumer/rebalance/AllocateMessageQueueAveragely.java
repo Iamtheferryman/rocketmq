@@ -16,12 +16,13 @@
  */
 package org.apache.rocketmq.client.consumer.rebalance;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.rocketmq.client.consumer.AllocateMessageQueueStrategy;
 import org.apache.rocketmq.client.log.ClientLogger;
-import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.common.message.MessageQueue;
+import org.apache.rocketmq.logging.InternalLogger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Average Hashing queue algorithm
@@ -51,12 +52,19 @@ public class AllocateMessageQueueAveragely implements AllocateMessageQueueStrate
             return result;
         }
 
+        // 计算当前消费者在消费者集合(List<String> cidAll)中下标的位置(index)，5
         int index = cidAll.indexOf(currentCID);
+
+        // 计算当前消息队列(Message Queue)是否能被消费者集合(cidAll)平均消费掉,4(队列数)/8（消费者进程数）= 0
         int mod = mqAll.size() % cidAll.size();
+
+        // mqAll.size() <= cidAll.size() 消息队列的个数小于等于消费者的进程个数， averageSize = 1
         int averageSize =
             mqAll.size() <= cidAll.size() ? 1 : (mod > 0 && index < mod ? mqAll.size() / cidAll.size()
                 + 1 : mqAll.size() / cidAll.size());
+        // 5
         int startIndex = (mod > 0 && index < mod) ? index * averageSize : index * averageSize + mod;
+
         int range = Math.min(averageSize, mqAll.size() - startIndex);
         for (int i = 0; i < range; i++) {
             result.add(mqAll.get((startIndex + i) % mqAll.size()));

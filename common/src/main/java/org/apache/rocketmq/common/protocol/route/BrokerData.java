@@ -17,17 +17,32 @@
 
 package org.apache.rocketmq.common.protocol.route;
 
+import org.apache.rocketmq.common.MixAll;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import org.apache.rocketmq.common.MixAll;
 
 public class BrokerData implements Comparable<BrokerData> {
+
+    /**
+     * 集群名
+     */
     private String cluster;
+
+    /**
+     * broker名字
+     */
     private String brokerName;
+
+    // brokerId=0表示master，大于0表示从Slave
+    // 当一主多从时，大于0的都是1吗，会覆盖吗
     private HashMap<Long/* brokerId */, String/* broker address */> brokerAddrs;
 
+    /**
+     * 随机数
+     */
     private final Random random = new Random();
 
     public BrokerData() {

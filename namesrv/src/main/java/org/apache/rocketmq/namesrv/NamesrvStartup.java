@@ -19,12 +19,6 @@ package org.apache.rocketmq.namesrv;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.concurrent.Callable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -32,19 +26,31 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.rocketmq.common.MQVersion;
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.constant.LoggerName;
+import org.apache.rocketmq.common.namesrv.NamesrvConfig;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
-import org.apache.rocketmq.common.namesrv.NamesrvConfig;
 import org.apache.rocketmq.remoting.netty.NettyServerConfig;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.apache.rocketmq.srvutil.ServerUtil;
 import org.apache.rocketmq.srvutil.ShutdownHookThread;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
+/**
+ * nameserver启动器
+ */
 public class NamesrvStartup {
 
     private static InternalLogger log;
+
     private static Properties properties = null;
+
     private static CommandLine commandLine = null;
 
     public static void main(String[] args) {
@@ -54,7 +60,9 @@ public class NamesrvStartup {
     public static NamesrvController main0(String[] args) {
 
         try {
+            // 创建NameSrvController实例
             NamesrvController controller = createNamesrvController(args);
+            // 启动controller
             start(controller);
             String tip = "The Name Server boot success. serializeType=" + RemotingCommand.getSerializeTypeConfigInThisServer();
             log.info(tip);
@@ -68,20 +76,31 @@ public class NamesrvStartup {
         return null;
     }
 
+    /**
+     * 创建NamesrvController
+     *
+     * @param args
+     * @return
+     * @throws IOException
+     * @throws JoranException
+     */
     public static NamesrvController createNamesrvController(String[] args) throws IOException, JoranException {
+        // 先放了个系统变量，RocketMQ的代码版本
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
-        //PackageConflictDetect.detectFastjson();
+//        PackageConflictDetect.detectFastjson();
 
+        // -h help; -n namesrvAddr
         Options options = ServerUtil.buildCommandlineOptions(new Options());
-        commandLine = ServerUtil.parseCmdLine("mqnamesrv", args, buildCommandlineOptions(options), new PosixParser());
+        commandLine = ServerUtil.parseCmdLine("mqnamesrv", args,
+                /*-c config; -p prient config item*/buildCommandlineOptions(options), new PosixParser());
         if (null == commandLine) {
             System.exit(-1);
             return null;
         }
-
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
         nettyServerConfig.setListenPort(9876);
+        // configFile 如果命令行中有-c的话，会将本地配置文件中配置写进namesrvConfig、nettyServerConfig
         if (commandLine.hasOption('c')) {
             String file = commandLine.getOptionValue('c');
             if (file != null) {
@@ -98,6 +117,7 @@ public class NamesrvStartup {
             }
         }
 
+        // only print config item and exit
         if (commandLine.hasOption('p')) {
             InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_CONSOLE_NAME);
             MixAll.printObjectProperties(console, namesrvConfig);
@@ -105,6 +125,7 @@ public class NamesrvStartup {
             System.exit(0);
         }
 
+        // 通过"--具体属性名 属性值"来指定namesrvConfig属性值
         MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);
 
         if (null == namesrvConfig.getRocketmqHome()) {
@@ -120,17 +141,26 @@ public class NamesrvStartup {
 
         log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
+        // 打印配置信息
         MixAll.printObjectProperties(log, namesrvConfig);
         MixAll.printObjectProperties(log, nettyServerConfig);
 
         final NamesrvController controller = new NamesrvController(namesrvConfig, nettyServerConfig);
 
         // remember all configs to prevent discard
+        // 又把最新配置合并到了 Configuration.allConfigs
         controller.getConfiguration().registerConfig(properties);
 
         return controller;
     }
 
+    /**
+     * NamesrvController 启动
+     *
+     * @param controller
+     * @return
+     * @throws Exception
+     */
     public static NamesrvController start(final NamesrvController controller) throws Exception {
 
         if (null == controller) {
@@ -143,6 +173,7 @@ public class NamesrvStartup {
             System.exit(-3);
         }
 
+        // 钩子函数
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -156,10 +187,21 @@ public class NamesrvStartup {
         return controller;
     }
 
+    /**
+     * 关闭
+     *
+     * @param controller
+     */
     public static void shutdown(final NamesrvController controller) {
         controller.shutdown();
     }
 
+    /**
+     * -c、-p
+     *
+     * @param options
+     * @return
+     */
     public static Options buildCommandlineOptions(final Options options) {
         Option opt = new Option("c", "configFile", true, "Name server config properties file");
         opt.setRequired(false);
@@ -172,7 +214,13 @@ public class NamesrvStartup {
         return options;
     }
 
+    /**
+     * getProperties
+     *
+     * @return
+     */
     public static Properties getProperties() {
         return properties;
     }
+
 }
